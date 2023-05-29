@@ -5,9 +5,9 @@ export default class InputField extends PureComponent {
         super(props);
         this.state = {
             values: {
-                key: 0,
+                key: "",
                 name: "",
-                phoneNumber: 0,
+                phoneNumber: "",
                 email: ''
             },
             errors: {
@@ -16,15 +16,12 @@ export default class InputField extends PureComponent {
                 phoneNumber: "*",
                 email: "*"
             },
-            Disabled: true,
-            disabledEdit: true,
-            display: "",
-            updateDisplay: "none",
         }
     }
     UNSAFE_componentWillReceiveProps(nextProps) {
         console.log(this.state.values);
-        if (nextProps.student !== this.state.values) {
+
+        if (nextProps.student !== this.state.values && nextProps.student !== null) {
             this.setState({
                 values: nextProps.student,
                 errors: {
@@ -33,11 +30,25 @@ export default class InputField extends PureComponent {
                     phoneNumber: "",
                     email: ""
                 },
-                disabledEdit: true,
-                display: nextProps.display,
-                updateDisplay: nextProps.updateDisplay
             })
         }
+    }
+
+    handleSetState = () => {
+        this.setState({
+            values: {
+                key: "",
+                name: "",
+                phoneNumber: "",
+                email: ''
+            },
+            errors: {
+                key: "*",
+                name: "*",
+                phoneNumber: "*",
+                email: "*"
+            },
+        })
     }
     handleInput = e => {
         const { students } = this.props;
@@ -82,16 +93,14 @@ export default class InputField extends PureComponent {
             message = id + " can't be blank";
         }
         errors[id] = message
-        let result = this.checkValidForm(errors);
         this.setState({
             values: inputValues,
             errors: errors,
-            Disabled: result,
-            disabledEdit: false,
         })
 
     }
-    checkValidForm = (errors) => {
+    checkValidForm = () => {
+        const errors = {...this.state.errors}
         let output = false;
         for (let key in errors) {
             if (errors[key] !== "") {
@@ -99,27 +108,16 @@ export default class InputField extends PureComponent {
                 break
             }
         }
+
+        console.log('error', output)
         return output
     }
     handleSubmit = e => {
+        if(this.checkValidForm()){
+            return;
+        }
         e.preventDefault();
-        document.querySelector("form.card").reset();
-        this.setState({
-            values: {
-                key: 0,
-                name: "",
-                phoneNumber: 0,
-                email: ''
-            },
-            errors: {
-                key: "*",
-                name: "*",
-                phoneNumber: "*",
-                email: "*"
-            },
-            Disabled: true,
-            updateDisplay: "none"
-        })
+        this.handleSetState()
         const { add } = this.props;
         add(this.state.values);
     }
@@ -127,23 +125,7 @@ export default class InputField extends PureComponent {
     handleEdit = e => {
         e.preventDefault();
         document.querySelector("form.card").reset();
-        this.setState({
-            values: {
-                key: 0,
-                name: "",
-                phoneNumber: 0,
-                email: ''
-            },
-            errors: {
-                key: "*",
-                name: "*",
-                phoneNumber: "*",
-                email: "*"
-            },
-            Disabled: true,
-            display: "",
-            updateDisplay: "none"
-        })
+        this.handleSetState();
         document.querySelector("#key").disabled = false
         const { update } = this.props;
         update(this.state.values);
@@ -159,27 +141,46 @@ export default class InputField extends PureComponent {
                         <div className="row">
                             <div className="col-6">
                                 <p className='d-inline-block'>Key</p> <span className='text-danger'>{this.state.errors.key}</span>
-                                <input type="number" id='key' uniqe="id" min-maxLength="[3,5]" data-type="number" className='form-control' onChange={this.handleInput} placeholder='Please enter your key' />
+                                <input
+                                    type="number" id='key' uniqe="id"
+                                    min-maxLength="[3,5]" data-type="number"
+                                    className='form-control' onChange={this.handleInput}
+                                    placeholder='Please enter your key'
+                                    value={this.state?.values.key}
+                                    disabled={this.props.student}
+                                />
                             </div>
                             <div className="col-6">
                                 <p className='d-inline-block' >Name</p> <span className='text-danger'>{this.state.errors.name}</span>
-                                <input type="text" id='name' data-type="letter" className='form-control' onChange={this.handleInput} placeholder='Please enter your name' />
+                                <input
+                                    type="text" id='name' data-type="letter" className='form-control'
+                                    onChange={this.handleInput}
+                                    placeholder='Please enter your name'
+                                    value={this.state?.values.name}
+                                />
                             </div>
                         </div>
                         <div className="row">
                             <div className="col-6">
                                 <p className='d-inline-block'>Phone Number</p> <span className='text-danger'>{this.state.errors.phoneNumber}</span>
-                                <input type="number" id='phoneNumber' className='form-control' min-maxLength="[8,10]" data-type="number" onChange={this.handleInput} placeholder='Please enter your phone number' />
+                                <input type="number" id='phoneNumber' className='form-control' min-maxLength="[8,10]"
+                                    data-type="number" onChange={this.handleInput}
+                                    placeholder='Please enter your phone number'
+                                    value={this.state?.values.phoneNumber}
+                                />
                             </div>
                             <div className="col-6">
                                 <p className='d-inline-block'>Email</p> <span className='text-danger'>{this.state.errors.email}</span>
-                                <input type="email" id='email' className='form-control' onChange={this.handleInput} data-type="email" placeholder='Please enter your email' />
+                                <input type="email" id='email' className='form-control' onChange={this.handleInput} data-type="email"
+                                    placeholder='Please enter your email'
+                                    value={this.state?.values.email}
+                                />
                             </div>
                         </div>
                     </div>
                     <div className="card-footer">
-                        <button type='submit' onClick={this.handleSubmit} className='btn btn-success' style={{ display: this.props.student ? 'none' : 'block' }}>Thêm</button>
-                        <button type='submit' className='btn btn-primary mx-2' onClick={this.handleEdit} style={{ display: this.props.student ? 'block' : 'none' }} >Update</button>
+                        <button type='button' onClick={this.handleSubmit} className='btn btn-success' style={{ display: this.props.student ? 'none' : 'block' }} >Thêm</button>
+                        <button type='button' className='btn btn-primary mx-2' onClick={this.handleEdit} style={{ display: this.props.student ? 'block' : 'none' }} >Update</button>
                     </div>
                 </form>
             </div>

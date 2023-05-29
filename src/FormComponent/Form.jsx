@@ -6,8 +6,6 @@ export default class Form extends Component {
     state = {
         students: [],
         student: null,
-        display: "",
-        updateDisplay: "none"
     }
     add = (student) => {
         const students = [...this.state.students];
@@ -36,39 +34,27 @@ export default class Form extends Component {
                 updateDisplay: ""
             })
         }
-        for (let key in student) {
-            document.querySelector(`#${key}`).value = student[key]
-            if (key == "key") {
-                document.querySelector(`#${key}`).disabled = true;
-            }
-        }
     }
 
     update = updatedStudent => {
-        const students = [...this.state.students];
-        const student = students.find(student => student.key == updatedStudent.key)
-        for (let key in student) {
-            student[key] = updatedStudent[key];
+        const studentsClone = [...this.state.students];
+        const indexStudent = studentsClone.findIndex(student => student.key == updatedStudent.key)
+
+        if (indexStudent > -1) {
+            studentsClone[indexStudent] = updatedStudent;
+            this.setState({
+                students: studentsClone,
+                student: null,
+            })
         }
-        this.setState({
-            student: student,
-            display: "",
-            updateDisplay: "none"
-        })
     }
     render() {
         return (
             <div className='container'>
-                <InputField add={this.add} students={this.state.students} student={this.state.student} update={this.update} display={this.state.display} updateDisplay={this.state.updateDisplay}></InputField>
+                <InputField add={this.add} students={this.state.students} student={this.state.student} update={this.update}></InputField>
                 <TableField students={this.state.students} deleteStudent={this.delete} edit={this.edit}></TableField>
             </div>
         )
     }
 
-    componentDidUpdate(prevProps, prevStates) {
-        if (prevStates.students != this.state.students) {
-            console.log("!");
-            return true;
-        } return false
-    }
 }

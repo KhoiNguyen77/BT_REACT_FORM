@@ -6,26 +6,23 @@ export default class TableField extends Component {
         super(props)
         this.state = {
             students: [],
-            result: {}
+            searchString: ""
         }
     }
     handleInput = e => {
-        let inputValue = e.target.value
-        let result = {};
-        const { students } = this.props;
-        let cloneStudents = [...students];
-        cloneStudents.filter(student => {
-            if (student.key == inputValue) {
-                result = { ...student }
-            }
-            return result
-        })
         this.setState({
-            result: result
+            searchString: e.target.value
         })
+        
     }
     render() {
         const { students, deleteStudent, edit } = this.props;
+        let studentsArray = null;
+        if( students.length && this.state.searchString ){
+            studentsArray = students.filter(student => student.key.includes(this.state.searchString))
+        }else{
+            studentsArray = [...students]
+        }
         return (
             <div className='container'>
                 <div class="row mb-3">
@@ -33,10 +30,10 @@ export default class TableField extends Component {
                         <div>
                             <p>Tìm kiếm sinh viên theo mã</p>
                             <div className="input-group">
-                                <input type="text" className="form-control" placeholder="Nhập mã sinh viên" id="searchName" onChange={this.handleInput} />
-                                <div className="input-group-prepend">
+                                <input type="text" className="form-control" placeholder="Nhập mã sinh viên" onChange={this.handleInput} value={this.state.searchString} />
+                                {/* <div className="input-group-prepend">
                                     <span className="input-group-text" id="btnSearch"><i className="fa fa-search" /></span>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
 
@@ -53,7 +50,7 @@ export default class TableField extends Component {
                         </tr>
                     </thead>
                     <tbody>
-                            {students.map(student => {
+                            {studentsArray.length > 0 && studentsArray.map(student => {
                                 return <tr>
                                     <td>{student.key}</td>
                                     <td>{student.name}</td>
@@ -71,8 +68,10 @@ export default class TableField extends Component {
                             })}
                     </tbody>
                 </table>
-                <h3>Kết quả tìm kiếm</h3>
-                <Result result={this.state.result}></Result>
+                {/* Không cần cái này */}
+                {/* <h3>Kết quả tìm kiếm</h3> */}
+                
+                {/* <Result result={this.state.result}></Result> */}
             </div>
         )
     }
