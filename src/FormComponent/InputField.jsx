@@ -109,7 +109,6 @@ export default class InputField extends PureComponent {
             }
         }
 
-        console.log('error', output)
         return output
     }
     handleSubmit = e => {
@@ -123,9 +122,7 @@ export default class InputField extends PureComponent {
 
     handleEdit = e => {
         e.preventDefault();
-        document.querySelector("form.card").reset();
         this.handleSetState();
-        document.querySelector("#key").disabled = false
         const { update } = this.props;
         update(this.state.values);
     }
