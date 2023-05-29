@@ -116,7 +116,6 @@ export default class InputField extends PureComponent {
         if(this.checkValidForm()){
             return;
         }
-        e.preventDefault();
         this.handleSetState()
         const { add } = this.props;
         add(this.state.values);
